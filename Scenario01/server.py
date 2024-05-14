@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-# Scenario 01 | No ciphering communication | Server side PoC
+# Scenario 01 | No encrypted communication | Server side PoC
 
 import opcua
 import random
@@ -17,10 +17,10 @@ def generate_random_values():
 # Create a server instance
 s = opcua.Server()
 s.set_server_name("Chiphering_OPCUA_Server")
-s.set_endpoint("opc.tcp://0.0.0.0:4841/PoC")
+s.set_endpoint("opc.tcp://0.0.0.0:4840/PoC")
 
 # Register the OPC-UA namespace
-idx = s.register_namespace("Scenario02")
+idx = s.register_namespace("Scenario01")
 # start the OPC UA server (no tags at this point)
 s.start()
 objects = s.get_objects_node()

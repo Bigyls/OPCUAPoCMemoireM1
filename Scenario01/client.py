@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # coding: utf-8
 
-# Scenario 01 | No ciphering communication | Client side PoC
+# Scenario 01 | No encrypted communication | Client side PoC
 
 import opcua
 import time
+import os
 
 def get_node_value(node):
     return node.get_child(node.get_children()[0].get_browse_name()).get_value(), \
@@ -13,7 +14,7 @@ def get_node_value(node):
            node.get_child(node.get_children()[3].get_browse_name()).get_value()
 
 # Create OPC-UA client
-client = opcua.Client("opc.tcp://localhost:4841")
+client = opcua.Client("opc.tcp://localhost:4840/PoC")
 
 # Connect to the server
 client.connect()
@@ -31,7 +32,8 @@ turbine1 = objects.get_child(["2:Wind_Turbine_1"])
 turbine2 = objects.get_child(["2:Wind_Turbine_2"])
 
 while True:
-
+    # Clear the terminal
+    os.system('clear') 
 
     # Get values for Wind_Turbine_1
     turbine1_electricity_production, turbine1_wind_direction, turbine1_rotation_speed, turbine1_wind_speed = get_node_value(turbine1)
@@ -43,6 +45,7 @@ while True:
 
     # Get values for Wind_Turbine_2
     turbine2_electricity_production, turbine2_wind_direction, turbine2_rotation_speed, turbine2_wind_speed = get_node_value(turbine2)
+    print("\n")
     print("Wind Turbine 2")
     print("Electricity Production: ", turbine2_electricity_production)
     print("Wind Direction: ", turbine2_wind_direction)
