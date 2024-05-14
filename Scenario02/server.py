@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-# Scenario 02 | Ciphering communication | Server side PoC
+# Scenario 02 | Encrypting communication | Server side PoC
 
 import opcua
 import random
@@ -23,8 +23,8 @@ def generate_random_values():
 # Create a server instance
 s = opcua.Server()
 s.set_server_name("Chiphering_OPCUA_Server")
-s.set_endpoint("opc.tcp://0.0.0.0:4842/PoC")
-s.set_security_policy([opcua.ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt])
+s.set_endpoint("opc.tcp://0.0.0.0:4840/PoC")
+s.set_security_policy([opcua.ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt]) # type: ignore
 s.load_certificate(server_cert)
 s.load_private_key(server_key)
 
