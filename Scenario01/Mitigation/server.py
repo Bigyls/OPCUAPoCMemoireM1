@@ -24,33 +24,33 @@ def generate_random_values():
 # Enable maintenance mode
 @opcua.uamethod
 def enable_maintenance_mode(parent):
-    objects.get_child(["2:Wind_Turbine_1", "2:MaintenanceMode"]).set_value(True)
-    objects.get_child(["2:Wind_Turbine_2", "2:MaintenanceMode"]).set_value(True)
-    objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(False)
-    objects.get_child(["2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(False)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_1", "2:MaintenanceMode"]).set_value(True)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_2", "2:MaintenanceMode"]).set_value(True)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(False)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(False)
     return True
 
 # Disable maintenance mode
 @opcua.uamethod
 def disable_maintenance_mode(parent):
-    objects.get_child(["2:Wind_Turbine_1", "2:MaintenanceMode"]).set_value(False)
-    objects.get_child(["2:Wind_Turbine_2", "2:MaintenanceMode"]).set_value(False)
-    objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(True)
-    objects.get_child(["2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(True)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_1", "2:MaintenanceMode"]).set_value(False)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_2", "2:MaintenanceMode"]).set_value(False)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(True)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(True)
     return True
 
 # Enable electricity production
 @opcua.uamethod
 def enable_electricity_production(parent):
-    objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(True)
-    objects.get_child(["2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(True)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(True)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(True)
     return True
 
 # Disable electricity production
 @opcua.uamethod
 def disable_electricity_production(parent):
-    objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(False)
-    objects.get_child(["2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(False)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(False)
+    objects.get_child(["2:Turbines", "2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(False)
     return True
 
 # User management with credentials
@@ -78,13 +78,19 @@ if __name__ == "__main__":
     server.start()
     objects = server.get_objects_node()
 
+    # Create a folder for the administration
+    administration_folder = objects.add_folder(idx, "Administration")
+
     # User Node
-    user = objects.add_object(idx, "UserManagement")
-    uservar1 = user.add_variable(idx, "ConnectedUser", "test")
+    user = administration_folder.add_object(idx, "UserManagement")
+    uservar1 = user.add_variable(idx, "ConnectedUser", "")
     uservar1.set_writable(writable=True)
 
+    # Create a folder for the turbines
+    turbine_folders = objects.add_folder(idx, "Turbines")
+
     # First wind turbine
-    turbine1 = objects.add_object(idx, "Wind_Turbine_1")
+    turbine1 = turbine_folders.add_object(idx, "Wind_Turbine_1")
 
     # Add variables for Wind_Turbine_1
     turbine1var1 = turbine1.add_variable(idx, "ElectricityProduction", True)
@@ -103,7 +109,7 @@ if __name__ == "__main__":
     turbine1var4.set_writable(writable=True)
 
     # Second wind turbine
-    turbine2 = objects.add_object(idx, "Wind_Turbine_2")
+    turbine2 = turbine_folders.add_object(idx, "Wind_Turbine_2")
 
     # Add variables for Wind_Turbine_2
     turbine2var1 = turbine2.add_variable(idx, "ElectricityProduction", True)
@@ -125,14 +131,13 @@ if __name__ == "__main__":
     methodsfolder = objects.add_folder(idx, "Methods")
     maintenance_methods_folder = methodsfolder.add_folder(idx, "Maintenance")
     electricity_methods_folder = methodsfolder.add_folder(idx, "Electricity")
-    user_methods_folder = methodsfolder.add_folder(idx, "Users")
 
     # Add methods in folders
     enable_maintenance_mode_method = maintenance_methods_folder.add_method(idx, "enable_maintenance_mode", enable_maintenance_mode, [], [opcua.ua.VariantType.Boolean]) # type: ignore
     disable_maintenance_mode_method = maintenance_methods_folder.add_method(idx, "disable_maintenance_mode", disable_maintenance_mode, [], [opcua.ua.VariantType.Boolean]) # type: ignore
     enable_electricity_production_method = electricity_methods_folder.add_method(idx, "enable_electricity_production", enable_electricity_production, [], [opcua.ua.VariantType.Boolean]) # type: ignore
     disable_electricity_production_method = electricity_methods_folder.add_method(idx, "disable_electricity_production", disable_electricity_production, [], [opcua.ua.VariantType.Boolean]) # type: ignore
-    get_connected_user_method = user_methods_folder.add_method(idx, "get_connected_user", get_connected_user, [], [opcua.ua.VariantType.String]) # type: ignore
+
     # Update the values on the server
     while True:
         turbine1_electricity_production = turbine1.get_child(["2:ElectricityProduction"]).get_value()

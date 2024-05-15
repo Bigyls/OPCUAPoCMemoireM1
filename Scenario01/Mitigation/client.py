@@ -4,6 +4,15 @@
 import opcua
 import time
 import os
+import signal
+
+# Set up signal handler for Ctrl+C
+def signal_handler(sig, frame):
+    set_connected_user('')
+    exit(0)
+
+# Set up signal handler for Ctrl+C
+signal.signal(signal.SIGINT, signal_handler)
 
 # Get the directory of the current script and set certificate and key paths
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +28,7 @@ def get_node_value(node):
            node.get_child(node.get_children()[4].get_browse_name()).get_value()
 
 def set_connected_user(user):
-    user_management = objects.get_child(["2:UserManagement"])
+    user_management = objects.get_child(["2:Administration", "2:UserManagement"])
     user = user_management.get_children()[0].set_value(user)
 
 if __name__ == "__main__":
@@ -44,10 +53,10 @@ if __name__ == "__main__":
     set_connected_user(user)
 
     # Get Wind_Turbine_1 node
-    turbine1 = objects.get_child(["2:Wind_Turbine_1"])
+    turbine1 = objects.get_child(["2:Turbines", "2:Wind_Turbine_1"])
 
     # Get Wind_Turbine_2 node
-    turbine2 = objects.get_child(["2:Wind_Turbine_2"])
+    turbine2 = objects.get_child(["2:Turbines", "2:Wind_Turbine_2"])
 
     while True:
         # Clear the terminal
