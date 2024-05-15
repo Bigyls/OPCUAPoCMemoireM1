@@ -93,10 +93,10 @@ if __name__ == "__main__":
     turbine1 = turbine_folders.add_object(idx, "Wind_Turbine_1")
 
     # Add variables for Wind_Turbine_1
-    turbine1var1 = turbine1.add_variable(idx, "ElectricityProduction", True)
+    turbine1var1 = turbine1.add_variable(idx, "ElectricityProduction", False)
     turbine1var1.set_writable(writable=True)
 
-    turbine1var1 = turbine1.add_variable(idx, "MaintenanceMode", False)
+    turbine1var1 = turbine1.add_variable(idx, "MaintenanceMode", True)
     turbine1var1.set_writable(writable=True)
 
     turbine1var2 = turbine1.add_variable(idx, "WindDirection", "North")
@@ -112,10 +112,10 @@ if __name__ == "__main__":
     turbine2 = turbine_folders.add_object(idx, "Wind_Turbine_2")
 
     # Add variables for Wind_Turbine_2
-    turbine2var1 = turbine2.add_variable(idx, "ElectricityProduction", True)
+    turbine2var1 = turbine2.add_variable(idx, "ElectricityProduction", False)
     turbine2var1.set_writable(writable=True)
 
-    turbine2var2 = turbine2.add_variable(idx, "MaintenanceMode", False)
+    turbine2var2 = turbine2.add_variable(idx, "MaintenanceMode", True)
     turbine2var2.set_writable(writable=True)
 
     turbine2var2 = turbine2.add_variable(idx, "WindDirection", "North")
@@ -145,34 +145,26 @@ if __name__ == "__main__":
         turbine2_electricity_production = turbine2.get_child(["2:ElectricityProduction"]).get_value()
         turbine2_maintenance_mode = turbine2.get_child(["2:MaintenanceMode"]).get_value()
 
+        # Generate random values for Wind_Turbine_1
+        turbine1_wind_direction, turbine1_rotation_speed, turbine1_wind_speed = generate_random_values()
+
+        # Generate random values for Wind_Turbine_2
+        turbine2_wind_direction, turbine2_rotation_speed, turbine2_wind_speed = generate_random_values()
+
+        # Set the values on the server for Wind_Turbine_1
+        turbine1.get_child(["2:WindDirection"]).set_value(turbine1_wind_direction)
+        turbine1.get_child(["2:RotationSpeed"]).set_value(turbine1_rotation_speed)
+        turbine1.get_child(["2:WindSpeed"]).set_value(turbine1_wind_speed)
+
+        # Set the values on the server for Wind_Turbine_2
+        turbine2.get_child(["2:WindDirection"]).set_value(turbine2_wind_direction)
+        turbine2.get_child(["2:RotationSpeed"]).set_value(turbine2_rotation_speed)
+        turbine2.get_child(["2:WindSpeed"]).set_value(turbine2_wind_speed)
+
         # Check if the turbines are in production mode and not in maintenance mode
-        if turbine1_electricity_production and not turbine1_maintenance_mode and turbine2_electricity_production and not turbine2_maintenance_mode:
-            # Generate random values for Wind_Turbine_1
-            turbine1_wind_direction, turbine1_rotation_speed, turbine1_wind_speed = generate_random_values()
+        if not turbine1_electricity_production and not turbine2_electricity_production or turbine1_maintenance_mode or turbine2_maintenance_mode:
 
-            # Generate random values for Wind_Turbine_2
-            turbine2_wind_direction, turbine2_rotation_speed, turbine2_wind_speed = generate_random_values()
-
-            # Set the values on the server for Wind_Turbine_1
-            turbine1.get_child(["2:WindDirection"]).set_value(turbine1_wind_direction)
-            turbine1.get_child(["2:RotationSpeed"]).set_value(turbine1_rotation_speed)
-            turbine1.get_child(["2:WindSpeed"]).set_value(turbine1_wind_speed)
-
-            # Set the values on the server for Wind_Turbine_2
-            turbine2.get_child(["2:WindDirection"]).set_value(turbine2_wind_direction)
-            turbine2.get_child(["2:RotationSpeed"]).set_value(turbine2_rotation_speed)
-            turbine2.get_child(["2:WindSpeed"]).set_value(turbine2_wind_speed)
-
-            # Wait for some time before updating again
-            time.sleep(5)
-
-        else:
             # stop the turbines if they are in maintenance mode or electricity production is disabled
-            turbine1.get_child(["2:WindDirection"]).set_value(0)
             turbine1.get_child(["2:RotationSpeed"]).set_value(0)
-            turbine1.get_child(["2:WindSpeed"]).set_value(0)
-
-            turbine2.get_child(["2:WindDirection"]).set_value(0)
             turbine2.get_child(["2:RotationSpeed"]).set_value(0)
-            turbine2.get_child(["2:WindSpeed"]).set_value(0)
             time.sleep(5)
