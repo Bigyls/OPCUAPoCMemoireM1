@@ -6,11 +6,14 @@ import random
 import time
 import os
 
+from opcua.server.user_manager import UserManager
+
 # Get the directory of the current script and set certificate and key paths
 script_dir = os.path.dirname(os.path.abspath(__file__))
 server_cert = os.path.join(script_dir, "../../certs/server/server_cert.pem")
 server_key = os.path.join(script_dir, "../../certs/server/server_key.pem")
 
+# Generate random values for the wind turbines
 def generate_random_values():
     wind_direction = random.choice(["North", "South", "East", "West"])
     rotation_speed = random.randrange(30, 40, 1)
@@ -20,7 +23,7 @@ def generate_random_values():
 # OPC UA methods
 # Enable maintenance mode
 @opcua.uamethod
-def EnableMaintenanceMode(parent):
+def enable_maintenance_mode(parent):
     objects.get_child(["2:Wind_Turbine_1", "2:MaintenanceMode"]).set_value(True)
     objects.get_child(["2:Wind_Turbine_2", "2:MaintenanceMode"]).set_value(True)
     objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(False)
@@ -29,7 +32,7 @@ def EnableMaintenanceMode(parent):
 
 # Disable maintenance mode
 @opcua.uamethod
-def DisableMaintenanceMode(parent):
+def disable_maintenance_mode(parent):
     objects.get_child(["2:Wind_Turbine_1", "2:MaintenanceMode"]).set_value(False)
     objects.get_child(["2:Wind_Turbine_2", "2:MaintenanceMode"]).set_value(False)
     objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(True)
@@ -38,31 +41,47 @@ def DisableMaintenanceMode(parent):
 
 # Enable electricity production
 @opcua.uamethod
-def EnableElectricityProduction(parent):
+def enable_electricity_production(parent):
     objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(True)
     objects.get_child(["2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(True)
     return True
 
 # Disable electricity production
 @opcua.uamethod
-def DisableElectricityProduction(parent):
+def disable_electricity_production(parent):
     objects.get_child(["2:Wind_Turbine_1", "2:ElectricityProduction"]).set_value(False)
     objects.get_child(["2:Wind_Turbine_2", "2:ElectricityProduction"]).set_value(False)
     return True
 
+# User management with credentials
+users_db =  {'admin': 'admin', 'guest': 'guest'}
+
+def user_manager(isession, username, password):
+    isession.user = UserManager.User
+    return username in users_db and password == users_db[username]
+
+# Main
 if __name__ == "__main__":
     # Create a server instance
-    s = opcua.Server()
-    s.set_server_name("PoC OPCUA Server")
-    s.set_endpoint("opc.tcp://0.0.0.0:4840/PoC")
-    s.set_security_policy([opcua.ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt]) # type: ignore
-    s.load_certificate(server_cert)
-    s.load_private_key(server_key)
+    server = opcua.Server()
+    server.set_server_name("PoC OPCUA Server")
+    server.set_endpoint("opc.tcp://0.0.0.0:4840/PoC")
+    server.set_security_policy([opcua.ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt]) # type: ignore
+    server.load_certificate(server_cert)
+    server.load_private_key(server_key)
+    server.set_security_IDs(["Username"])
+    server.user_manager.set_user_manager(user_manager) # type: ignore
+
     # Register the OPC-UA namespace
-    idx = s.register_namespace("Scenario01")
+    idx = server.register_namespace("Scenario01")
     # start the OPC UA server (no tags at this point)
-    s.start()
-    objects = s.get_objects_node()
+    server.start()
+    objects = server.get_objects_node()
+
+    # User Node
+    user = objects.add_object(idx, "UserManagement")
+    uservar1 = user.add_variable(idx, "ConnectedUser", "test")
+    uservar1.set_writable(writable=True)
 
     # First wind turbine
     turbine1 = objects.add_object(idx, "Wind_Turbine_1")
@@ -106,13 +125,14 @@ if __name__ == "__main__":
     methodsfolder = objects.add_folder(idx, "Methods")
     maintenance_methods_folder = methodsfolder.add_folder(idx, "Maintenance")
     electricity_methods_folder = methodsfolder.add_folder(idx, "Electricity")
+    user_methods_folder = methodsfolder.add_folder(idx, "Users")
 
     # Add methods in folders
-    enable_maintenance_mode_method = maintenance_methods_folder.add_method(idx, "EnableMaintenanceMode", EnableMaintenanceMode, [], [opcua.ua.VariantType.Boolean]) # type: ignore
-    disable_maintenance_mode_method = maintenance_methods_folder.add_method(idx, "DisableMaintenanceMode", DisableMaintenanceMode, [], [opcua.ua.VariantType.Boolean]) # type: ignore
-    enable_electricity_production_method = electricity_methods_folder.add_method(idx, "EnableElectricityProduction", EnableElectricityProduction, [], [opcua.ua.VariantType.Boolean]) # type: ignore
-    disable_electricity_production_method = electricity_methods_folder.add_method(idx, "DisableElectricityProduction", DisableElectricityProduction, [], [opcua.ua.VariantType.Boolean]) # type: ignore
-
+    enable_maintenance_mode_method = maintenance_methods_folder.add_method(idx, "enable_maintenance_mode", enable_maintenance_mode, [], [opcua.ua.VariantType.Boolean]) # type: ignore
+    disable_maintenance_mode_method = maintenance_methods_folder.add_method(idx, "disable_maintenance_mode", disable_maintenance_mode, [], [opcua.ua.VariantType.Boolean]) # type: ignore
+    enable_electricity_production_method = electricity_methods_folder.add_method(idx, "enable_electricity_production", enable_electricity_production, [], [opcua.ua.VariantType.Boolean]) # type: ignore
+    disable_electricity_production_method = electricity_methods_folder.add_method(idx, "disable_electricity_production", disable_electricity_production, [], [opcua.ua.VariantType.Boolean]) # type: ignore
+    get_connected_user_method = user_methods_folder.add_method(idx, "get_connected_user", get_connected_user, [], [opcua.ua.VariantType.String]) # type: ignore
     # Update the values on the server
     while True:
         turbine1_electricity_production = turbine1.get_child(["2:ElectricityProduction"]).get_value()

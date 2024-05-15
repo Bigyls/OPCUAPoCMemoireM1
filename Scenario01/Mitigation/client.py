@@ -18,9 +18,16 @@ def get_node_value(node):
            node.get_child(node.get_children()[3].get_browse_name()).get_value(), \
            node.get_child(node.get_children()[4].get_browse_name()).get_value()
 
+def set_connected_user(user):
+    user_management = objects.get_child(["2:UserManagement"])
+    user = user_management.get_children()[0].set_value(user)
+
 if __name__ == "__main__":
     # Create OPC-UA client
     client = opcua.Client("opc.tcp://localhost:4840/PoC")
+    user, password = 'admin', 'admin'
+    client.set_user(user)
+    client.set_password(password)
     client.set_security_string(f"Basic256Sha256,SignAndEncrypt,{client_cert},{client_key}")
 
     # Connect to the server
@@ -33,6 +40,9 @@ if __name__ == "__main__":
     # Get the objects node
     objects = client.get_objects_node()
 
+    # Set connected user
+    set_connected_user(user)
+
     # Get Wind_Turbine_1 node
     turbine1 = objects.get_child(["2:Wind_Turbine_1"])
 
@@ -42,6 +52,7 @@ if __name__ == "__main__":
     while True:
         # Clear the terminal
         os.system('/usr/bin/clear')
+        print(f"User: {user}\n")
 
         # Get values for Wind_Turbine_1
         turbine1_electricity_production, turbine1_maintenance_mode, turbine1_wind_direction, turbine1_rotation_speed, turbine1_wind_speed = get_node_value(turbine1)
