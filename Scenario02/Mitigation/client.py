@@ -57,7 +57,7 @@ client_cert = os.path.join(script_dir, "../../certs/client/client_cert.pem")
 client_key = os.path.join(script_dir, "../../certs/client/client_key.pem")
 
 # Create OPC-UA client
-client = opcua.Client("opc.tcp://localhost:4840/PoC")
+client = opcua.Client(f"opc.tcp://{args.ip}:4840/PoC")
 client.set_security_string(f"Basic256Sha256,SignAndEncrypt,{client_cert},{client_key}")
 
 # Connect to the server
