@@ -45,16 +45,3 @@ class Gauge(ttk.Label):
         draw.arc((0, 0, self.im_size - 10, self.im_size - 10), 90, angle, self.indicatorcolor, 100)
         self.arc = ImageTk.PhotoImage(self.im.resize((self.size, self.size), Image.LANCZOS))
         self.configure(image=self.arc)
-
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    style = ttk.Style()
-    gauge = Gauge(root, padding=20)
-    gauge.pack()
-    ttk.Scale(root, from_=0, to=360, variable=gauge.arcvariable).pack(fill='x', padx=10, pady=10)
-
-    # update the textvariable with the degrees information when the arcvariable changes
-    gauge.arcvariable.trace_add('write', lambda *args, g=gauge: g.textvariable.set(f'{g.arcvariable.get()} deg'))
-
-    root.mainloop()

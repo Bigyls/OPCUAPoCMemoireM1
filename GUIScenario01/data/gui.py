@@ -20,12 +20,12 @@ from exploitation.client import ExploitationClient
 class GUI():
 
 	def run_server(self):
-		server = ExploitationServer()
-		server.run()
+		self.server = ExploitationServer()
+		self.server.run()
 
 	def run_client(self):
-		client = ExploitationClient()
-		client.run()
+		self.client = ExploitationClient()
+		self.client.run()
 
 	def run_gui(self):
 
@@ -36,7 +36,6 @@ class GUI():
 			return ASSETS_PATH / Path(path)
 
 		window = Tk()
-		style = ttk.Style()
 
 		window.geometry("1144x647")
 		window.configure(bg = "#0085BA")
@@ -105,7 +104,7 @@ class GUI():
 			image=button_image_1,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: print("button_1 clicked"),
+			command=lambda: self.server.enable_electricity_production(0),
 			relief="flat"
 		)
 		button_1.place(
@@ -121,7 +120,7 @@ class GUI():
 			image=button_image_2,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: print("button_2 clicked"),
+			command=lambda: self.server.disable_electricity_production(0),
 			relief="flat"
 		)
 		button_2.place(
@@ -146,7 +145,7 @@ class GUI():
 			image=button_image_3,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: print("button_3 clicked"),
+			command=lambda: self.server.enable_maintenance_mode(0),
 			relief="flat"
 		)
 		button_3.place(
@@ -162,7 +161,7 @@ class GUI():
 			image=button_image_4,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: print("button_4 clicked"),
+			command=lambda: self.server.disable_maintenance_mode(0),
 			relief="flat"
 		)
 		button_4.place(
@@ -198,10 +197,13 @@ class GUI():
 			font=myfont16
 		)
 
-		wt1_gauge1 = Gauge(window, padding=1, background='#FFFFFF')
+		# Wind turbine 1 electricity production gauge
+		wt1_gauge1 = Gauge(window, padding=1)
 		wt1_gauge1.pack()
 		wt1_gauge1.arcvariable.trace_add('write', lambda *args, g=wt1_gauge1: g.textvariable.set("ON" if g.arcvariable.get() == 360 else "OFF" if g.arcvariable.get() == 0 else f'{g.arcvariable.get()} OFF'))
-		ttk.Scale(window, from_=0, to=360, variable=wt1_gauge1.arcvariable.set(0))
+		ttk.Scale(window, from_=0, to=360) # type: ignore
+		wt1_gauge1.troughcolor = '#CF1B1B'
+		wt1_gauge1.indicatorcolor = '#58BC2A'
 		wt1_gauge1.place(x=400, y=115)
 
 		canvas.create_text(
@@ -213,10 +215,11 @@ class GUI():
 			font=myfont16
 		)
 
+		# Wind turbine 1 rotation speed gauge
 		wt1_gauge2 = Gauge(window, padding=1, background='#FFFFFF')
 		wt1_gauge2.pack()
 		wt1_gauge2.arcvariable.trace_add('write', lambda *args, g=wt1_gauge2: g.textvariable.set(f'{g.arcvariable.get()} tr/min'))
-		ttk.Scale(window, from_=0, to=360, variable=wt1_gauge2.arcvariable.set(50))
+		ttk.Scale(window, from_=0, to=360) # type: ignore
 		wt1_gauge2.place(x=650, y=115)
 
 		canvas.create_text(
@@ -231,7 +234,7 @@ class GUI():
 		wt1_gauge3 = Gauge(window, padding=1, background='#FFFFFF')
 		wt1_gauge3.pack()
 		wt1_gauge3.arcvariable.trace_add('write', lambda *args, g=wt1_gauge3: g.textvariable.set(f'{g.arcvariable.get()} km/h'))
-		ttk.Scale(window, from_=0, to=360, variable=wt1_gauge3.arcvariable.set(120))
+		ttk.Scale(window, from_=0, to=360) # type: ignore
 		wt1_gauge3.place(x=900, y=115)
 
 		canvas.create_text(
@@ -252,10 +255,13 @@ class GUI():
 			font=myboldfont16
 		)
 
+		# Wind turbine 2 electricity production gauge
 		wt2_gauge1 = Gauge(window, padding=1, background='#FFFFFF')
 		wt2_gauge1.pack()
 		wt2_gauge1.arcvariable.trace_add('write', lambda *args, g=wt2_gauge1: g.textvariable.set("ON" if g.arcvariable.get() == 360 else "OFF" if g.arcvariable.get() == 0 else f'{g.arcvariable.get()} OFF'))
-		ttk.Scale(window, from_=0, to=360, variable=wt2_gauge1.arcvariable.set(360))
+		ttk.Scale(window, from_=0, to=360) # type: ignore
+		wt2_gauge1.troughcolor = '#CF1B1B'
+		wt2_gauge1.indicatorcolor = '#58BC2A'
 		wt2_gauge1.place(x=400, y=425)
 
 		canvas.create_text(
@@ -267,10 +273,11 @@ class GUI():
 			font=myfont16
 		)
 
+		# Wind turbine 2 rotation speed gauge
 		wt2_gauge2 = Gauge(window, padding=1, background='#FFFFFF')
 		wt2_gauge2.pack()
 		wt2_gauge2.arcvariable.trace_add('write', lambda *args, g=wt2_gauge2: g.textvariable.set(f'{g.arcvariable.get()} tr/min'))
-		ttk.Scale(window, from_=0, to=360, variable=wt2_gauge2.arcvariable.set(34))
+		ttk.Scale(window, from_=0, to=360) # type: ignore
 		wt2_gauge2.place(x=650, y=425)
 
 		canvas.create_text(
@@ -282,14 +289,33 @@ class GUI():
 			font=myfont16
 		)
 
+		# Wind turbine 2 wind speed gauge
 		wt2_gauge3 = Gauge(window, padding=1, background='#FFFFFF')
 		wt2_gauge3.pack()
 		wt2_gauge3.arcvariable.trace_add('write', lambda *args, g=wt2_gauge3: g.textvariable.set(f'{g.arcvariable.get()} km/h'))
-		ttk.Scale(window, from_=0, to=360, variable=wt2_gauge3.arcvariable.set(80))
+		ttk.Scale(window, from_=0, to=360) # type: ignore
 
 		wt2_gauge3.place(x=900, y=425)
 
 		window.resizable(False, False)
+
+		window.title("Wind turbines management interface")
+
+		def update_gauge():
+			# Get values for Wind_Turbine_1
+			turbine1_electricity_production, turbine1_maintenance_mode, turbine1_wind_direction, turbine1_rotation_speed, turbine1_wind_speed = self.client.get_node_value(self.client.turbine1)
+			wt1_gauge1.arcvariable.set(360 if turbine1_electricity_production else 0)
+			wt1_gauge2.arcvariable.set(turbine1_rotation_speed)
+			wt1_gauge3.arcvariable.set(turbine1_wind_speed)
+
+			# Get values for Wind_Turbine_2
+			turbine2_electricity_production, turbine2_maintenance_mode, turbine2_wind_direction, turbine2_rotation_speed, turbine2_wind_speed = self.client.get_node_value(self.client.turbine2)
+			wt2_gauge1.arcvariable.set(360 if turbine2_electricity_production else 0)
+			wt2_gauge2.arcvariable.set(turbine2_rotation_speed)
+			wt2_gauge3.arcvariable.set(turbine2_wind_speed)
+			window.after(200,update_gauge)
+
+		window.after(10,update_gauge)
 		window.mainloop()
 
 	def run(self):
