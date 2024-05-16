@@ -5,6 +5,11 @@ import opcua
 import time
 import os
 import signal
+import argparse
+
+parser = argparse.ArgumentParser(description="Client side PoC")
+parser.add_argument("-i", "--ip", type=str, help="Server IP address")
+args = parser.parse_args()
 
 # Set up signal handler for Ctrl+C
 def signal_handler(sig, frame):
@@ -33,7 +38,7 @@ def set_connected_user(user):
 
 if __name__ == "__main__":
     # Create OPC-UA client
-    client = opcua.Client("opc.tcp://localhost:4840/PoC")
+    client = opcua.Client(f"opc.tcp://{args.ip}:4840/PoC")
     user, password = 'admin', 'admin'
     client.set_user(user)
     client.set_password(password)

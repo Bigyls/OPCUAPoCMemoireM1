@@ -6,6 +6,11 @@
 import opcua
 import time
 import os
+import argparse
+
+parser = argparse.ArgumentParser(description="Client side PoC")
+parser.add_argument("-i", "--ip", type=str, help="Server IP address")
+args = parser.parse_args()
 
 class SubscriptionHandler(object):
     def __init__(self) -> None:
