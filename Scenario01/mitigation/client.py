@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     while True:
         # Clear the terminal
-        os.system('/usr/bin/clear')
+        os.system('clear')
         print(f"User: {user}\n")
 
         # Get values for Wind_Turbine_1
