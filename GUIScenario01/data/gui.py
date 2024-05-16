@@ -9,22 +9,35 @@ from pathlib import Path
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk,ttk, font, Entry, Text, Button, PhotoImage
+from tkinter import Tk,ttk, font, Button, PhotoImage
 
 from data.gauge import Gauge
 from data.roundedcanva import RoundedCanvas
 from exploitation.server import ExploitationServer
 from exploitation.client import ExploitationClient
 
+from mitigation.server import MitigationServer
+from mitigation.client import MitigationClient
+
 
 class GUI():
+	def __init__(self, mode):
+		self.mode = mode
 
-	def run_server(self):
+	def run_exploitation_server(self):
 		self.server = ExploitationServer()
 		self.server.run()
 
-	def run_client(self):
+	def run_exploitation_client(self):
 		self.client = ExploitationClient()
+		self.client.run()
+
+	def run_mitigation_server(self):
+		self.server = MitigationServer()
+		self.server.run()
+
+	def run_mitigation_client(self):
+		self.client = MitigationClient()
 		self.client.run()
 
 	def run_gui(self):
@@ -319,14 +332,27 @@ class GUI():
 		window.mainloop()
 
 	def run(self):
-		# Start the server and client in separate threads
-		server_thread = threading.Thread(target=self.run_server)
-		client_thread = threading.Thread(target=self.run_client)
+		if self.mode == "exploitation":
+			# Start the server and client in separate threads
+			server_thread = threading.Thread(target=self.run_exploitation_server)
+			client_thread = threading.Thread(target=self.run_exploitation_client)
 
-		server_thread.start()
-		time.sleep(1)
-		client_thread.start()
-		time.sleep(1)
+			server_thread.start()
+			time.sleep(1)
+			client_thread.start()
+			time.sleep(1)
 
-		# Once both server and client threads finish, start the GUI
-		self.run_gui()
+			# Once both server and client threads finish, start the GUI
+			self.run_gui()
+		else:
+			# Start the server and client in separate threads
+			server_thread = threading.Thread(target=self.run_mitigation_server)
+			client_thread = threading.Thread(target=self.run_mitigation_client)
+
+			server_thread.start()
+			time.sleep(1)
+			client_thread.start()
+			time.sleep(1)
+
+			# Once both server and client threads finish, start the GUI
+			self.run_gui()
