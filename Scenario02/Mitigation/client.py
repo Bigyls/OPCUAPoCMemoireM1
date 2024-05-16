@@ -7,10 +7,13 @@ import opcua
 import time
 import os
 import argparse
+import platform
 
 parser = argparse.ArgumentParser(description="Client side PoC")
 parser.add_argument("-i", "--ip", type=str, help="Server IP address")
 args = parser.parse_args()
+
+OS = platform.system()
 
 class SubscriptionHandler(object):
     def __init__(self) -> None:
@@ -34,7 +37,10 @@ class SubscriptionHandler(object):
         
         self.values.sort(key=lambda x: x[0])
             
-        print("\033c",end="")
+        if(OS == "Windows"):
+            os.system("cls")
+        else:
+            print("\033c",end="")
         
         for nodeBrowName, val in self.values:
             print(f"Node: {nodeBrowName}\n Value: {val}\n")
