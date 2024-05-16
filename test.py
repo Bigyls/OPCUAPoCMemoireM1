@@ -1,7 +1,4 @@
-try:
-    import Tkinter as tk     ## Python 2.x
-except ImportError:
-    import tkinter as tk     ## Python 3.x
+import tkinter as tk     ## Python 3.x
 
 class GUI:
     def __init__(self):
