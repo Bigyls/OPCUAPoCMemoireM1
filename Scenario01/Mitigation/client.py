@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-# Scenario 03 | Encrypted PubSub | Client side PoC
+# Scenario 01 | Encrypted PubSub | Client side PoC
 
 import opcua
 import time

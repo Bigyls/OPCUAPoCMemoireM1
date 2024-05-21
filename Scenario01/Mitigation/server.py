@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-# Scenario 02 | Encrypted communication | Server side PoC
+# Scenario 01 | Encrypted communication | Server side PoC
 
 import opcua
 import random
@@ -29,7 +29,7 @@ s.load_certificate(server_cert)
 s.load_private_key(server_key)
 
 # Register the OPC-UA namespace
-idx = s.register_namespace("Scenario02")
+idx = s.register_namespace("Scenario01")
 # start the OPC UA server (no tags at this point)
 s.start()
 objects = s.get_objects_node()
