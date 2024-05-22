@@ -1,17 +1,20 @@
 #!/usr/bin/python
 # coding: utf-8
 
+# Scenario 02 | Mitigation | Client side PoC
+
 import opcua
 import time
 import os
 import signal
 import argparse
 
+# Set up argument parser
 parser = argparse.ArgumentParser(description="Client side PoC")
 parser.add_argument("-i", "--ip", type=str, help="Server IP address")
 args = parser.parse_args()
 
-# Set up signal handler for Ctrl+C
+# Signal handler for Ctrl+C
 def signal_handler(sig, frame):
     set_connected_user('')
     exit(0)
@@ -24,7 +27,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 client_cert = os.path.join(script_dir, "../../certs/client/client_cert.pem")
 client_key = os.path.join(script_dir, "../../certs/client/client_key.pem")
 
-# Get the values from the server
+# Function to get the values from the server
 def get_node_value(node):
     return node.get_child(node.get_children()[0].get_browse_name()).get_value(), \
            node.get_child(node.get_children()[1].get_browse_name()).get_value(), \
@@ -32,10 +35,12 @@ def get_node_value(node):
            node.get_child(node.get_children()[3].get_browse_name()).get_value(), \
            node.get_child(node.get_children()[4].get_browse_name()).get_value()
 
+# Function to set the connected user
 def set_connected_user(user):
     user_management = objects.get_child(["2:Administration", "2:UserManagement"])
-    user = user_management.get_children()[0].set_value(user)
+    user_management.get_children()[0].set_value(user)
 
+# Main function
 if __name__ == "__main__":
     # Create OPC-UA client
     client = opcua.Client(f"opc.tcp://{args.ip}:4840/PoC")
@@ -54,7 +59,7 @@ if __name__ == "__main__":
     # Get the objects node
     objects = client.get_objects_node()
 
-    # Set connected user
+    # Set connected user
     set_connected_user(user)
 
     # Get Wind_Turbine_1 node
@@ -87,5 +92,5 @@ if __name__ == "__main__":
         print("Rotation Speed: ", turbine2_rotation_speed)
         print("Wind Speed: ", turbine2_wind_speed)
 
-        # Get the values from the server
+        # Wait before getting values again
         time.sleep(2)

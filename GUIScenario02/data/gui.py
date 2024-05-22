@@ -111,13 +111,20 @@ class GUI():
 			font=myfont16
 		)
 
+		def enable_electricity_production():
+			self.server.enable_electricity_production(0)
+			maintenance_string.set("Maintenance mode : OFF")
+
+		def disable_electricity_production():
+			self.server.disable_electricity_production(0)
+
 		button_image_1 = PhotoImage(
 			file=relative_to_assets("button_1.png"))
 		button_1 = Button(
 			image=button_image_1,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: self.server.enable_electricity_production(0),
+			command=enable_electricity_production,
 			relief="flat"
 		)
 		button_1.place(
@@ -133,7 +140,7 @@ class GUI():
 			image=button_image_2,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: self.server.disable_electricity_production(0),
+			command=disable_electricity_production,
 			relief="flat"
 		)
 		button_2.place(
@@ -153,7 +160,7 @@ class GUI():
 		)
 
 		maintenance_string = StringVar()
-		maintenance_string.set("Maintenance mode : ON")
+		maintenance_string.set("Maintenance mode : ON ⚠️")
 
 		maintenance_label = Label(
 			anchor="nw",
@@ -168,7 +175,7 @@ class GUI():
 
 		def enable_maintenance_mode():
 			self.server.enable_maintenance_mode(0)
-			maintenance_string.set("Maintenance mode : ON")
+			maintenance_string.set("Maintenance mode : ON ⚠️")
 
 		def disable_maintenance_mode():
 			self.server.disable_maintenance_mode(0)

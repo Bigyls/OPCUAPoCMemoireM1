@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-# Scenario 01 | Encrypted communication | Server side PoC
+# Scenario 01 | Mitigation | Server side PoC
 
 import opcua
 import random
@@ -13,6 +13,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 server_cert = os.path.join(script_dir, "../../certs/server/server_cert.pem")
 server_key = os.path.join(script_dir, "../../certs/server/server_key.pem")
 
+# Function to generate random values for the wind turbine parameters
 def generate_random_values():
     wind_direction = random.choice(["North", "South", "East", "West"])
     rotation_speed = random.randrange(1, 100, 5)
@@ -30,11 +31,14 @@ s.load_private_key(server_key)
 
 # Register the OPC-UA namespace
 idx = s.register_namespace("Scenario01")
-# start the OPC UA server (no tags at this point)
+
+# Start the OPC UA server (no tags at this point)
 s.start()
+
+# Get the objects node
 objects = s.get_objects_node()
 
-# First wind turbine
+# Create the first wind turbine object
 turbine1 = objects.add_object(idx, "Wind_Turbine_1")
 
 # Add variables for Wind_Turbine_1
@@ -50,7 +54,7 @@ turbine1var3.set_writable(writable=True)
 turbine1var4 = turbine1.add_variable(idx, "WindSpeed", 0)
 turbine1var4.set_writable(writable=True)
 
-# Second wind turbine
+# Create the second wind turbine object
 turbine2 = objects.add_object(idx, "Wind_Turbine_2")
 
 # Add variables for Wind_Turbine_2
@@ -66,7 +70,7 @@ turbine2var3.set_writable(writable=True)
 turbine2var4 = turbine2.add_variable(idx, "WindSpeed", 0)
 turbine2var4.set_writable(writable=True)
 
-# Update the values on the server
+# Update the values on the server in an infinite loop
 while True:
     # Generate random values for Wind_Turbine_1
     turbine1_electricity_production, turbine1_wind_direction, turbine1_rotation_speed, turbine1_wind_speed = generate_random_values()

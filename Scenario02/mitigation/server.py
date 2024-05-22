@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # coding: utf-8
 
+# Scenario 02 | Mitigation | Server side PoC
+
 import opcua
 import random
 import time
@@ -107,25 +109,6 @@ if __name__ == "__main__":
 
     turbine1var4 = turbine1.add_variable(idx, "WindSpeed", 0)
     turbine1var4.set_writable(writable=True)
-
-    # Second wind turbine
-    turbine2 = turbine_folders.add_object(idx, "Wind_Turbine_2")
-
-    # Add variables for Wind_Turbine_2
-    turbine2var1 = turbine2.add_variable(idx, "ElectricityProduction", False)
-    turbine2var1.set_writable(writable=True)
-
-    turbine2var2 = turbine2.add_variable(idx, "MaintenanceMode", True)
-    turbine2var2.set_writable(writable=True)
-
-    turbine2var2 = turbine2.add_variable(idx, "WindDirection", "North")
-    turbine2var2.set_writable(writable=True)
-
-    turbine2var3 = turbine2.add_variable(idx, "RotationSpeed", 0)
-    turbine2var3.set_writable(writable=True)
-
-    turbine2var4 = turbine2.add_variable(idx, "WindSpeed", 0)
-    turbine2var4.set_writable(writable=True)
 
     # Create folders method
     methodsfolder = objects.add_folder(idx, "Methods")
