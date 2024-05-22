@@ -9,7 +9,7 @@ from pathlib import Path
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk,ttk, font, Button, PhotoImage
+from tkinter import Tk,ttk, font, Button, PhotoImage, Label, StringVar
 
 from data.gauge import Gauge
 from data.roundedcanva import RoundedCanvas
@@ -152,13 +152,35 @@ class GUI():
 			font=myfont16
 		)
 
+		maintenance_string = StringVar()
+		maintenance_string.set("Maintenance mode : ON")
+
+		maintenance_label = Label(
+			anchor="nw",
+			text=maintenance_string.get(),
+			font=myboldfont16,
+			background="#FFFFFF",
+			padx=20.0,
+			pady=20.0
+			)
+
+		maintenance_label.place(x=25.0, y=340.0)
+
+		def enable_maintenance_mode():
+			self.server.enable_maintenance_mode(0)
+			maintenance_string.set("Maintenance mode : ON")
+
+		def disable_maintenance_mode():
+			self.server.disable_maintenance_mode(0)
+			maintenance_string.set("Maintenance mode : OFF")
+
 		button_image_3 = PhotoImage(
 			file=relative_to_assets("button_3.png"))
 		button_3 = Button(
 			image=button_image_3,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: self.server.enable_maintenance_mode(0),
+			command=enable_maintenance_mode,
 			relief="flat"
 		)
 		button_3.place(
@@ -174,7 +196,7 @@ class GUI():
 			image=button_image_4,
 			borderwidth=0,
 			highlightthickness=0,
-			command=lambda: self.server.disable_maintenance_mode(0),
+			command=disable_maintenance_mode,
 			relief="flat"
 		)
 		button_4.place(
@@ -326,6 +348,7 @@ class GUI():
 			wt2_gauge1.arcvariable.set(360 if turbine2_electricity_production else 0)
 			wt2_gauge2.arcvariable.set(turbine2_rotation_speed)
 			wt2_gauge3.arcvariable.set(turbine2_wind_speed)
+			maintenance_label.config(text=maintenance_string.get())
 			window.after(200,update_gauge)
 
 		window.after(10,update_gauge)
